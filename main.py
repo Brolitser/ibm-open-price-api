@@ -6,6 +6,7 @@ import pytz
 import os
 from twilio.rest import Client
 
+# ---------------- FastAPI App ----------------
 app = FastAPI()
 SYMBOL = os.getenv("SYMBOL", "IBM")
 
@@ -32,6 +33,7 @@ def send_whatsapp(price, timestamp):
     )
 # ---------------------------------------------------
 
+# ---------------- Fetch IBM Price ----------------
 def fetch_open_price():
     """Fetch today's IBM price and send WhatsApp notification."""
     tz = pytz.timezone("US/Eastern")
@@ -56,12 +58,15 @@ def fetch_open_price():
 
         # Send WhatsApp message
         send_whatsapp(cached["price"], cached["timestamp"])
+# ---------------------------------------------------
 
-# Scheduler: weekdays at 9:30 AM US/Eastern
+# ---------------- Scheduler ----------------
 scheduler = BackgroundScheduler(timezone="US/Eastern")
 scheduler.add_job(fetch_open_price, "cron", day_of_week="mon-fri", hour=9, minute=30)
 scheduler.start()
+# -------------------------------------------
 
+# ---------------- API Endpoints ----------------
 @app.get("/")
 def root():
     return {"message": "IBM Opening Price API with WhatsApp"}
@@ -72,8 +77,4 @@ def get_price():
 
 @app.post("/refresh")
 def refresh(token: str = ""):
-    secret = os.getenv("REFRESH_TOKEN", "")
-    if secret and token != secret:
-        return {"error": "invalid token"}, 401
-    fetch_open_price()
-    return {"status": "ok", "cached": cached}
+    secret =
